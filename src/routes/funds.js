@@ -1,5 +1,5 @@
 import express from 'express';
-import { listFunds, getFundByCode } from '../controllers/fundsController.js';
+import { listFunds, getFundByCode, getFundNav } from '../controllers/fundsController.js';
 
 const router = express.Router();
 

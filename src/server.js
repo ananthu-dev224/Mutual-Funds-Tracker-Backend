@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
+import portfolioRoutes from './routes/portfolio.js';
 import auth from './middlewares/auth.js';
 
 
@@ -24,6 +25,7 @@ connectDB(process.env.MONGO_URI);
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
 
 const PORT = process.env.PORT || 5000;

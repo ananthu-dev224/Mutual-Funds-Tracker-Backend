@@ -9,6 +9,7 @@ import authRoutes from './routes/auth.js';
 import portfolioRoutes from './routes/portfolio.js';
 import fundsRoutes from './routes/funds.js';
 import auth from './middlewares/auth.js';
+import { startNavUpdater } from './cron/navUpdater.js';
 
 
 dotenv.config();
@@ -23,6 +24,8 @@ app.use(morgan('dev'));
 
 // Connect DB
 connectDB(process.env.MONGO_URI);
+// Start cron job
+startNavUpdater();
 
 // Routes
 app.use('/api/auth', authRoutes);

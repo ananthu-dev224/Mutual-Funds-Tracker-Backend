@@ -3,10 +3,8 @@ import { listFunds, getFundByCode } from '../controllers/fundsController.js';
 
 const router = express.Router();
 
-// GET /api/funds?search=icici&page=1&limit=20
-router.get('/', listFunds);
-
-// GET /api/funds/:schemeCode
-router.get('/:schemeCode', getFundByCode);
+router.get('/', listFunds);                // /api/funds?search=icici
+router.get('/:schemeCode', getFundByCode); // /api/funds/152075
+router.get('/:schemeCode/nav', getFundNav); // /api/funds/152075/nav
 
 export default router;

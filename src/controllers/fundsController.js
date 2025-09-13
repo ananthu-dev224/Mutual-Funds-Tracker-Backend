@@ -1,4 +1,6 @@
 import Fund from '../models/Fund.js';
+import FundLatestNav from '../models/FundLatestNav.js';
+import { fetchLatestNav } from '../utils/mfApi.js';
 
 // List/Search funds
 export const listFunds = async (req, res) => {
@@ -7,7 +9,7 @@ export const listFunds = async (req, res) => {
     const query = {};
 
     if (search) {
-      query.schemeName = { $regex: search, $options: 'i' }; // case-insensitive
+      query.schemeName = { $regex: search, $options: 'i' };
     }
 
     const skip = (page - 1) * limit;
@@ -37,7 +39,7 @@ export const listFunds = async (req, res) => {
   }
 };
 
-// Get fund by schemeCode
+// Get fund details by schemeCode
 export const getFundByCode = async (req, res) => {
   try {
     const schemeCode = parseInt(req.params.schemeCode, 10);
@@ -50,6 +52,47 @@ export const getFundByCode = async (req, res) => {
     res.json({ success: true, data: fund });
   } catch (err) {
     console.error('getFundByCode error', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Get latest NAV (check DB cache first, then API)
+export const getFundNav = async (req, res) => {
+  try {
+    const schemeCode = parseInt(req.params.schemeCode, 10);
+
+    // check cache
+    const cached = await FundLatestNav.findOne({ schemeCode }).lean();
+    if (cached) {
+      return res.json({
+        success: true,
+        data: {
+          schemeCode,
+          currentNav: cached.nav,
+          asOn: cached.date
+        }
+      });
+    }
+
+    // fallback: external API
+    const latestNavObj = await fetchLatestNav(schemeCode);
+    const nav = parseFloat(
+      latestNavObj.nav ||
+      latestNavObj.lastPrice ||
+      latestNavObj.nav_value ||
+      latestNavObj
+    );
+
+    res.json({
+      success: true,
+      data: {
+        schemeCode,
+        currentNav: nav,
+        asOn: latestNavObj.date || null
+      }
+    });
+  } catch (err) {
+    console.error('getFundNav error', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
